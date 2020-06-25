@@ -6,19 +6,18 @@ import logging
 import datetime
 import functools
 import jwt
-# test to see if the CODEBUILD WORKS
+
 # pylint: disable=import-error
 from flask import Flask, jsonify, request, abort
+# code build test
 
-
-JWT_SECRET = os.environ.get('JWT_SECRET', '345345345')
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
+JWT_SECRET = os.environ.get('JWT_SECRET')
+LOG_LEVEL = os.environ.get('LOG_LEVEL')
 
 
 def _logger():
     '''
     Setup logger format, level, and handler.
-
     RETURNS: log object
     '''
     formatter = logging.Formatter(
@@ -73,11 +72,9 @@ def auth():
     password = request_data.get('password')
     if not email:
         LOG.error("No email provided")
-        print('email')
         return jsonify({"message": "Missing parameter: email"}, 400)
     if not password:
         LOG.error("No password provided")
-        print('password')
         return jsonify({"message": "Missing parameter: password"}, 400)
     body = {'email': email, 'password': password}
 
