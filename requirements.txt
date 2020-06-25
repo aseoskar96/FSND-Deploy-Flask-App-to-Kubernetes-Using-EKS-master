@@ -2,4 +2,3 @@ pyjwt
 flask
 gunicorn
 pytest
-boto3==1.11.0
