@@ -13,12 +13,13 @@ from flask import Flask, jsonify, request, abort
 import boto3
 # test 5
 ssm = boto3.client('ssm')
-parameter = ssm.get_parameter(Name='JWT_SECRET', WithDecryption=True)
-print(parameter['Parameter']['Value'])
+parameter = ssm.get_parameter(Name='JWT_SECRET')
+JWT = parameter['Parameter']['Value'])
+JWT_SECRET_PART=JWT.split('.')[2]
 
-#JWT_SECRET = os.environ.get('JWT_SECRET', parameter['Parameter']['Value'])
-JWT_SECRET = os.environ.get('JWT_SECRET', '234')
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
+# JWT_SECRET = os.environ.get('JWT_SECRET', parameter['Parameter']['Value'])
+JWT_SECRET=os.environ.get('JWT_SECRET', JWT_SECRET_PART)
+LOG_LEVEL=os.environ.get('LOG_LEVEL', 'DEBUG')
 
 
 def _logger():
@@ -26,36 +27,36 @@ def _logger():
     Setup logger format, level, and handler.
     RETURNS: log object
     '''
-    formatter = logging.Formatter(
+    formatter=logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    log = logging.getLogger(__name__)
+    log=logging.getLogger(__name__)
     log.setLevel(LOG_LEVEL)
 
-    stream_handler = logging.StreamHandler()
+    stream_handler=logging.StreamHandler()
     stream_handler.setFormatter(formatter)
 
     log.addHandler(stream_handler)
     return log
 
 
-LOG = _logger()
+LOG=_logger()
 LOG.debug("Starting with log level: %s" % LOG_LEVEL)
-APP = Flask(__name__)
+APP=Flask(__name__)
 
 
 def require_jwt(function):
     """
     Decorator to check valid jwt is present.
     """
-    @functools.wraps(function)
+    @ functools.wraps(function)
     def decorated_function(*args, **kws):
         if not 'Authorization' in request.headers:
             abort(401)
-        data = request.headers['Authorization']
-        token = str.replace(str(data), 'Bearer ', '')
+        data=request.headers['Authorization']
+        token=str.replace(str(data), 'Bearer ', '')
         try:
-            jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+            jwt.decode(token, JWT_SECRET, algorithms = ['HS256'])
         except:  # pylint: disable=bare-except
             abort(401)
 
@@ -63,47 +64,47 @@ def require_jwt(function):
     return decorated_function
 
 
-@APP.route('/', methods=['POST', 'GET'])
+@ APP.route('/', methods = ['POST', 'GET'])
 def health():
     return jsonify("Healthy")
 
 
-@APP.route('/auth', methods=['POST'])
+@ APP.route('/auth', methods = ['POST'])
 def auth():
     """
     Create JWT token based on email.
     """
-    request_data = request.get_json()
-    email = request_data.get('email')
-    password = request_data.get('password')
+    request_data=request.get_json()
+    email=request_data.get('email')
+    password=request_data.get('password')
     if not email:
         LOG.error("No email provided")
         return jsonify({"message": "Missing parameter: email"}, 400)
     if not password:
         LOG.error("No password provided")
         return jsonify({"message": "Missing parameter: password"}, 400)
-    body = {'email': email, 'password': password}
+    body={'email': email, 'password': password}
 
-    user_data = body
+    user_data=body
 
-    return jsonify(token=_get_jwt(user_data).decode('utf-8'))
+    return jsonify(token = _get_jwt(user_data).decode('utf-8'))
 
 
-@APP.route('/contents', methods=['GET'])
+@ APP.route('/contents', methods = ['GET'])
 def decode_jwt():
     """
     Check user token and return non-secret data
     """
     if not 'Authorization' in request.headers:
         abort(401)
-    data = request.headers['Authorization']
-    token = str.replace(str(data), 'Bearer ', '')
+    data=request.headers['Authorization']
+    token=str.replace(str(data), 'Bearer ', '')
     try:
-        data = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        data=jwt.decode(token, JWT_SECRET, algorithms = ['HS256'])
     except:  # pylint: disable=bare-except
         abort(401)
 
-    response = {'email': data['email'],
+    response={'email': data['email'],
                 'exp': data['exp'],
                 'nbf': data['nbf']}
     return jsonify(**response)
