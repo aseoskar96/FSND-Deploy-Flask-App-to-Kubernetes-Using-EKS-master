@@ -10,14 +10,13 @@ import jwt
 # pylint: disable=import-error
 from flask import Flask, jsonify, request, abort
 # code build test
-import boto3
+#import boto3
 # test 5
-ssm = boto3.client('ssm')
-jwt_secret = ssm.get_parameter(Name='JWT_SECRET', WithDecryption=True)
+#ssm = boto3.client('ssm')
+#jwt_secret = ssm.get_parameter(Name='JWT_SECRET', WithDecryption=True)
 
 
-JWT_SECRET = os.environ.get('JWT_SECRET', str(
-    jwt_secret.get("Parameter").get("Value")))
+JWT_SECRET = os.environ.get('JWT_SECRET', '345')
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
 
 
