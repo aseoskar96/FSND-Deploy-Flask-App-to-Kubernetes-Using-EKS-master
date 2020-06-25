@@ -15,9 +15,8 @@ import boto3
 ssm = boto3.client('ssm')
 parameter = ssm.get_parameter(Name='JWT_SECRET', WithDecryption=True)
 print(parameter['Parameter']['Value'])
-jwt_parts = parameter['Parameter']['Value'].split('.')
 
-JWT_SECRET = os.environ.get('JWT_SECRET', jwt_parts[2])
+
 JWT_SECRET = os.environ.get('JWT_SECRET', '234')
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
 
@@ -66,7 +65,8 @@ def require_jwt(function):
 
 @APP.route('/', methods=['POST', 'GET'])
 def health():
-    return jsonify("Healthy")
+    return jsonify(parameter['Parameter']['Value'])
+    # return jsonify("Healthy")
 
 
 @APP.route('/auth', methods=['POST'])
