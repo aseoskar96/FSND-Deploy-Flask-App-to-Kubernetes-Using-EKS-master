@@ -16,8 +16,8 @@ ssm = boto3.client('ssm')
 parameter = ssm.get_parameter(Name='JWT_SECRET', WithDecryption=True)
 print(parameter['Parameter']['Value'])
 
-JWT_SECRET = os.environ.get('JWT_SECRET', parameter['Parameter']['Value'])
-
+#JWT_SECRET = os.environ.get('JWT_SECRET', parameter['Parameter']['Value'])
+JWT_SECRET = os.environ.get('JWT_SECRET', '234')
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
 
 
