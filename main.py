@@ -12,7 +12,7 @@ from flask import Flask, jsonify, request, abort
 # code build test
 #import boto3
 # test 5
-ssm = boto3.client('ssm')
+#ssm = boto3.client('ssm')
 ##parameter = ssm.get_parameter(Name='JWT_SECRET', WithDecryption=True)
 # print(parameter['Parameter']['Value'])
 
