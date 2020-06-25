@@ -12,7 +12,7 @@ from flask import Flask, jsonify, request, abort
 # code build test
 
 JWT_SECRET = os.environ.get('JWT_SECRET')
-LOG_LEVEL = os.environ.get('LOG_LEVEL')
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
 
 
 def _logger():
