@@ -13,11 +13,11 @@ from flask import Flask, jsonify, request, abort
 import boto3
 # test 5
 ssm = boto3.client('ssm')
-parameter = ssm.get_parameter(Name='JWT_SECRET', WithDecryption=True)
-print(parameter['Parameter']['Value'])
+jwt_secret = ssm.get_parameter(Name='JWT_SECRET', WithDecryption=True)
 
 
-JWT_SECRET = os.environ.get('JWT_SECRET', '234')
+JWT_SECRET = os.environ.get('JWT_SECRET', str(
+    jwt_secret.get("Parameter").get("Value")))
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
 
 
@@ -65,8 +65,8 @@ def require_jwt(function):
 
 @APP.route('/', methods=['POST', 'GET'])
 def health():
-    return jsonify(parameter['Parameter']['Value'])
-    # return jsonify("Healthy")
+
+    return jsonify("Healthy")
 
 
 @APP.route('/auth', methods=['POST'])
