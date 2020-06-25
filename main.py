@@ -13,12 +13,12 @@ from flask import Flask, jsonify, request, abort
 import boto3
 # test 5
 ssm = boto3.client('ssm')
-parameter = ssm.get_parameter(Name='JWT_SECRET')
-JWT = parameter(['Parameter']['Value'])
-JWT_SECRET_PART = JWT.split('.')[2]
+parameter = ssm.get_parameter(Name='JWT_SECRET', WithDecryption=True)
+print(parameter['Parameter']['Value'])
+jwt_parts = parameter['Parameter']['Value'].split('.')
 
-# JWT_SECRET = os.environ.get('JWT_SECRET', parameter['Parameter']['Value'])
-JWT_SECRET = os.environ.get('JWT_SECRET', JWT_SECRET_PART)
+JWT_SECRET = os.environ.get('JWT_SECRET', jwt_parts[2])
+JWT_SECRET = os.environ.get('JWT_SECRET', '234')
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
 
 
@@ -49,7 +49,7 @@ def require_jwt(function):
     """
     Decorator to check valid jwt is present.
     """
-    @ functools.wraps(function)
+    @functools.wraps(function)
     def decorated_function(*args, **kws):
         if not 'Authorization' in request.headers:
             abort(401)
@@ -64,12 +64,12 @@ def require_jwt(function):
     return decorated_function
 
 
-@ APP.route('/', methods=['POST', 'GET'])
+@APP.route('/', methods=['POST', 'GET'])
 def health():
     return jsonify("Healthy")
 
 
-@ APP.route('/auth', methods=['POST'])
+@APP.route('/auth', methods=['POST'])
 def auth():
     """
     Create JWT token based on email.
@@ -90,7 +90,7 @@ def auth():
     return jsonify(token=_get_jwt(user_data).decode('utf-8'))
 
 
-@ APP.route('/contents', methods=['GET'])
+@APP.route('/contents', methods=['GET'])
 def decode_jwt():
     """
     Check user token and return non-secret data
